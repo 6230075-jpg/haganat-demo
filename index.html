@@ -769,6 +769,14 @@ a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible,
 .about-pic{margin:0}
 .about-pic img{width:100%;aspect-ratio:3/2;object-fit:cover;object-position:50% 40%;border-radius:5px;display:block}
 .about-pic figcaption{margin-top:10px;font-size:14px;color:var(--muted)}
+.about-gal .hpics{min-height:0;height:auto;aspect-ratio:3/2;border-radius:5px}
+.about-gal .hpics .hpic{position:absolute;inset:0;margin:0;opacity:0;transition:opacity .9s ease;pointer-events:none}
+.about-gal .hpics .hpic.on{opacity:1;pointer-events:auto}
+.about-gal .hpics .hpic figcaption{padding:44px 20px 40px;font-size:14px;margin:0}
+.about-gal .hpic-dots{inset-inline-start:12px;inset-inline-end:12px;bottom:6px;gap:0;justify-content:flex-start}
+.about-gal .hpic-dot{width:20px;height:24px}
+.about-gal .hpic-dot::before{width:7px;height:7px}
+@media(max-width:420px){.about-gal .hpic-dot{width:18px}}
 @media(max-width:900px){.hpics{min-height:0;height:auto;aspect-ratio:3/2}}
 @media(prefers-reduced-motion:reduce){.hpic{transition:none}}
 
@@ -1242,7 +1250,8 @@ function tickerHtml(){
 const FP=()=>(window.FORUM_INITIAL_DATA||{}).fpics||{};
 const HP=[["hall","התכנסות הפורום, בני ברק, אדר תשפ״ו","50% 50%"],["knesset","דיון בוועדה בכנסת","50% 50%"],["table","התכנסות הפורום, בני ברק, אדר תשפ״ו","60% 40%"],["kotel","מעמד חלוקת התעודות בהלכות ריבית, רחבת הכותל","55% 50%"],["speaker","התכנסות הפורום, בני ברק, אדר תשפ״ו","50% 35%"],["cert","תעודת הוקרה בכנסת","50% 30%"],["n1","","60% 40%"],["n7","","70% 50%"],["n5","","72% 50%"],["n3","","50% 40%"],["n4","","50% 40%"],["n6","","35% 45%"],["n8","","75% 55%"],["n2","","55% 50%"]];
 let hpT=null;
-function heroPics(){return '<div class="hpics" role="group" aria-label="תמונות מפעילות הפורום">'+HP.map((p,i)=>'<figure class="hpic'+(i?"":" on")+'"><img src="'+FP()[p[0]]+'" alt="'+(p[1]||"תמונה מפעילות הפורום")+'" style="object-position:'+p[2]+'"'+(i?' loading="lazy"':'')+'>'+(p[1]?'<figcaption>'+p[1]+'</figcaption>':'')+'</figure>').join("")+'<div class="hpic-dots">'+HP.map((p,i)=>'<button type="button" class="hpic-dot'+(i?"":" on")+'" aria-label="תמונה '+(i+1)+(p[1]?': '+p[1]:'')+'"></button>').join("")+'</div></div>';}
+const AP=[["rabbi","מביקורי הפורום במעונם של גדולי ישראל","50% 40%"],["event","כנס הפורום בהלכות ריבית","50% 45%"],["n4","","50% 40%"],["kotel","מעמד חלוקת התעודות בהלכות ריבית, רחבת הכותל","55% 50%"],["n1","","60% 40%"],["hall","התכנסות הפורום, בני ברק, אדר תשפ״ו","50% 50%"],["n5","","72% 50%"],["knesset","דיון בוועדה בכנסת","50% 50%"],["n3","","50% 40%"],["speaker","התכנסות הפורום, בני ברק, אדר תשפ״ו","50% 35%"],["n6","","35% 45%"],["cert","תעודת הוקרה בכנסת","50% 30%"],["n7","","70% 50%"],["table","התכנסות הפורום, בני ברק, אדר תשפ״ו","60% 40%"],["n8","","75% 55%"],["n2","","55% 50%"]];
+function heroPics(L,cap0){L=L||HP;return '<div class="hpics" role="group" aria-label="תמונות מפעילות הפורום">'+L.map((p,i)=>'<figure class="hpic'+(i?"":" on")+'"><img src="'+FP()[p[0]]+'" alt="'+(p[1]||"תמונה מפעילות הפורום")+'" style="object-position:'+p[2]+'"'+(i?' loading="lazy"':'')+'>'+(i===0&&cap0?cap0:(p[1]?'<figcaption>'+p[1]+'</figcaption>':''))+'</figure>').join("")+'<div class="hpic-dots">'+L.map((p,i)=>'<button type="button" class="hpic-dot'+(i?"":" on")+'" aria-label="תמונה '+(i+1)+(p[1]?': '+p[1]:'')+'"></button>').join("")+'</div></div>';}
 function bindPics(){clearInterval(hpT);const f=[...document.querySelectorAll(".hpic")],d=[...document.querySelectorAll(".hpic-dot")];if(!f.length)return;let c=0;const go=n=>{c=(n+f.length)%f.length;f.forEach((x,i)=>x.classList.toggle("on",i===c));d.forEach((x,i)=>x.classList.toggle("on",i===c));};const start=()=>{clearInterval(hpT);if(matchMedia("(prefers-reduced-motion: reduce)").matches)return;hpT=setInterval(()=>{if(!document.querySelector(".hpic")){clearInterval(hpT);return;}go(c+1);},6000);};d.forEach((x,i)=>x.onclick=()=>{go(i);start();});start();}
 function bindHome(){bindPics();const tp=$(".ticker-pause");if(tp)tp.onclick=()=>{const p=$(".ticker").classList.toggle("paused");tp.setAttribute("aria-pressed",String(p));tp.textContent=p?"המשך":"עצירה";};}
 function homeX(){
@@ -1274,7 +1283,7 @@ function drawJoin(){
 
 /* ---------- מי אנחנו ---------- */
 function aboutX(){
- XD();return pageHead("about.title")+'<section class="section about-intro"><div class="container about-grid"><div class="about-copy">'+E("x.about.h","h2")+E("x.about.p1","p")+E("x.about.p2","p")+E("x.about.vision","p","quiet")+'</div>'+'<figure class="about-pic"><img src="'+FP().rabbi+'" alt="נציג הפורום בביקור אצל אחד מגדולי הרבנים" loading="lazy">'+E("x.about.cap","figcaption")+'</figure>'+'</div></section><section class="section home-about"><div class="container readable">'+E("x.about.pressEyebrow","p","eyebrow")+E("x.about.pressTitle","h2")+'<div class="press-list">'+data.press.map((p,i)=>'<a class="press-row" href="'+safeUrl(p.url)+'" target="_blank" rel="noopener noreferrer"><span>'+E("press."+i+".label")+'<small>'+E("press."+i+".outlet")+'</small></span>'+arrow+'</a>').join("")+'</div><div class="inline-contact">'+E("about.contactTitle","h3")+link("contact",E("about.contactAction"),"button")+'</div></div></section>';
+ XD();return pageHead("about.title")+'<section class="section about-intro"><div class="container about-grid"><div class="about-copy">'+E("x.about.h","h2")+E("x.about.p1","p")+E("x.about.p2","p")+E("x.about.vision","p","quiet")+'</div>'+'<div class="about-pic about-gal">'+heroPics(AP,E("x.about.cap","figcaption"))+'</div>'+'</div></section><section class="section home-about"><div class="container readable">'+E("x.about.pressEyebrow","p","eyebrow")+E("x.about.pressTitle","h2")+'<div class="press-list">'+data.press.map((p,i)=>'<a class="press-row" href="'+safeUrl(p.url)+'" target="_blank" rel="noopener noreferrer"><span>'+E("press."+i+".label")+'<small>'+E("press."+i+".outlet")+'</small></span>'+arrow+'</a>').join("")+'</div><div class="inline-contact">'+E("about.contactTitle","h3")+link("contact",E("about.contactAction"),"button")+'</div></div></section>';
 }
 
 /* ---------- הודעות ואזהרות ---------- */
@@ -1404,7 +1413,7 @@ const XP={contact:contactX,notices:noticesX,guides:guidesX,card:cardX,legal:lega
 function bindX(r){
  xTimers.forEach(clearInterval);xTimers=[];
  $$("[data-demo]").forEach(b=>b.onclick=()=>{const [t,m]=b.dataset.demo.split("|");info(t,m);});
- if(!r)bindHome();else if(r==="notices")bindNotices();else if(r==="card")drawCard();else if(r==="contact"){if(C.done)C=newC();drawC();}else if(r==="join")drawJoin();
+ if(!r)bindHome();else if(r==="about")bindPics();else if(r==="notices")bindNotices();else if(r==="card")drawCard();else if(r==="contact"){if(C.done)C=newC();drawC();}else if(r==="join")drawJoin();
 }
 /* ---------- שמירה משותפת של עריכות (db) ---------- */
 const SY={ref:null,can:null,ready:false,exists:false,known:{},prev:{},dirty:{},busy:false,again:false,timer:0,warned:false};
